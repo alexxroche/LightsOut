@@ -126,7 +126,8 @@ my $test_input = [
     { input => '3x3:222222222',         output => '3x3:020222020' , name=>'all the 2s'},
     { input => '2x6:101010101011',      output => '2x6:000000101010' , name=>'rectangular'},
     { input => '3x3:123456789', output => '3x3:535159575', name=>'mod 10'}, # this is a limit of the program: it can't deal with lights that have more than 10 states
-
+# actual lightsOut board
+    { input => '5:1111111111111111111111111',      output => '5x5:0110101110001111101111000' , name=>'original LightsOut'},
 ];
 
 unless( $opt{no_test_inputs} ){
