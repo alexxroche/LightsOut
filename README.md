@@ -1,5 +1,11 @@
 # LightsOut
 
+## Most recent update
+
+https://github.com/alexxroche/LightsOut/blob/master/perl/lightsOut.pl
+now solves any mXn lightsOut and can deal with lights in 10 different states,
+(so not just on an off, they can have a fixed chain of colours, and off).
+
 ### Background
 
 http://mathworld.wolfram.com/LightsOutPuzzle.html

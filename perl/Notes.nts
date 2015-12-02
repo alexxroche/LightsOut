@@ -1,0 +1,154 @@
+Usage: ./play_lightsOut.pl [-h|-d|-s] [board_width, i.e. 1..9)
+    -h this help message
+    -d incement debug
+    -s solve the game
+    --display_board   just display the board with the given settings 
+    -V version
+  You can set the initial board one of two ways:
+    -b begin,with,these,board,lamps,lit,at,the,begining
+    OR
+    -i {initial bitmask to set}
+
+
+   During play [1..|2,1,3|r|q]
+    you can enter single moves or a
+    chain of CSV moves are acceptale i.e. 1,2,3,4
+
+    r resets the board
+    d displays the existing internals
+    q quits
+
+
+Method:
+	This uses an imperative style recursive search.
+
+	It would be interesting to try a more functional style:
+
+	- Go beyond dynamically creating the mask for the possible
+	buttons, and try to exhustively list the starting positions,
+	(which in this case are finite and relatively small.)
+	Then the solutions for the ones that match a single mask
+	can rapidly be moved from the problem space and recorded
+	in the solution space.
+
+	Then we combine masks until we are able to solve the rest.
+	2^9 = 512 (but we can prune rotations and reflections.)
+	(is there something known in matrix math to get to 90?)
+
+
+Masks:
+
+oox ooo  xoo oxx 	xox  xxo xxx xxx xxx
+oxx xox  xxo oox	ooo  xoo oxx xox xxo
+xxx xxx  xxx oxx	xox  xxo oox ooo xoo
+
+Original;1 rotation; unique; 1 rotation
+
+0: 		[1] (solved condition)
+
+xxx
+xxx
+xxx
+
+1: Starts that map to the 2 originals and the unique:	[3]
+
+oxx xox xxx 
+xxx xxx xox
+xxx xxx xxx
+
+2: Combinations of any two of the first 3:			[4]
+
+oox xox oxx oox			   
+xxx xox xox xox
+xxx xxx xxx xxx			   
+
+3: Other non-rotation or reflections with 3:		[14] 1/14 is a mask 
+
+ooo oox oox oox oox oox oox xxo
+xxx oxx xox xxo xxx xxx xxx oxx
+xxx xxx xxx xxx oxx xox xxo xox
+
+oxo oxo oxo oxx oxx xxx
+xox xxx xxx xoo xox ooo
+xxx oxx xox xxx xxo xxx
+
+4 lit (pruneing reflections and rotations only have to search the same order): [23] 2x2x2x2=16 (so combinations aren't a shortcut)
+
+(9!/5!)/2! = 1512 "Nine lamps, 5 dark, two positions (on/off)"
+
+ooo ooo ooo ooo oox oox oox oox oox oox	oox oox oox oox oox oox oox oxo oxo oxo oxo xox xox
+oxx xox xxx xxx oox oxo oxx xoo xox xox	xox xxo	xxo xxo xxx xxx	xxx oox xox xox xxx ooo oxo
+xxx xxx oxx xox xxx xxx xxo xxx oxx xox xxo oxx xox xxo	oox oxo	xoo xxx oxx xox oxo xxx xox
+
+5: (is it faster to compare entire shapes or can we increate pruning by rejecting "can't be the same because A has 2x2 lit and B does not" ?)
+
+(9!/4!)/2! = 7560
+
+ooo ooo ooo ooo ooo ooo ooo ooo ooo oox oox oox oox oox oox oox oox oox oxo oxo oxo oxo xox [23] 2*2*2*2*2=32
+oox oxo oxx oxx oxx xox xox xxx xxx ooo oox oxo oxo xoo xoo xoo xxo xxo ooo oxo	xoo xox ooo
+xxx xxx oxx xox xxo oxx xox oox oxo xxx xxo xox xxo oxx xox xxo oox oxo xxx xox	oxx oxo xox
+
+ooo
+xxx
+ooo
+
+6: (same as combinations of 3 but XORed )		[14]
+
+ooo ooo ooo ooo xoo oxo oox oox
+ooo xoo oxo oox ooo ooo ooo xoo
+xxx xxo xxo xxo xxo xxo xxo oxo
+
+ooo xoo oxo ooo oox ooo {5th: 1,9 mask}
+oxo ooo ooo oxx oxo xxx {6: 2,8 mask}
+xox xox xox xoo xoo ooo 
+
+7: (XOR 2)						[4]
+
+ooo ooo ooo ooo	{1st: 1,6 mask}
+ooo oxo oxo oxo	
+xxo oxo xoo xxo
+
+8:							[3]
+
+ooo ooo ooo
+ooo ooo oxo
+oox oxo ooo
+
+9:							[1] = 2x(1+3+4+14+23) = 90 possible start positions
+
+ooo
+ooo
+ooo
+
+
+Trivial layouts:
+
+MxN: starts (with at least 1 lap lit) depth of search space/number of clicks to solve
+
+0xN: ?	?
+1x1: 1  1
+1x2: 2  {oo=1-step solution; ox=!UNSOLVEABLE} (is this the only unsolveable one?)
+1x3: 3  {ooo,oox=1-step; oxo=2-step}
+1x4: 8  {oooo=2-step ;ooox=1-step; ooxo=2-step:4,2 ;ooxx=1-step ;oxox=3-step:4,2,3 ;oxxo=2-step:2,3; oxxx=3-step:3,1,4|1,3,4; xoxx=2-step:3,4}
+1,5:  ooooo oooox oooxo 
+
+2x2: 4  4 {oooo=4-step:2x2 converts to oxxx ; ooox=1-step:1x1; ooxx=4-step (convert to a rotation of oxxx with 1x1); oxxo=2-step:1x1,2x2 ; oxxx=3-step:1x1 -> xoox:1x2 -> oxoo:2x1 }
+2x3:
+2x4:
+
+3x3: 90? 
+3x4:
+3x5:
+
+4x4:
+4x5:
+
+5x5: [the actual lights Out board]
+5x6:
+
+6x6:
+
+we can simulate an infinate board by looping the top to the bottom and left to right with a 4x4 board.
+
+Copyright 2015 Alexx Roche, MIT Licence 1.0
+

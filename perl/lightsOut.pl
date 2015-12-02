@@ -1,5 +1,6 @@
 #!/usr/bin/perl
-# lightsOut_input.pl ver 0.1 20151024 alexx @ cpan dot org
+# lightsOut.pl ver 1.0 20151202 alexx @ cpan dot org
+# lightsOut.pl ver 0.1 20151024 alexx @ cpan dot org
 use strict;
 #no strict "refs";
 use Data::Dumper;
@@ -14,11 +15,11 @@ lightsOut.pl
 
 =head1 VERSION
 
-0.01
+1.00
 
 =cut
 
-our $VERSION = 0.01;
+our $VERSION = 1.00;
 
 =head1 ABSTRACT
 
@@ -85,7 +86,7 @@ Adds the Copyright line to any output that needs it
 
 =cut
 
-sub footer { print "perldoc $0 \nCopyright 2011,2015 Cahiravahilla publications\n"; }
+sub footer { print "perldoc $0 \nCopyright 2015 Alexx Roche, MIT Licence Version 1.0\n"; }
 
 =head3 help
 
@@ -235,6 +236,8 @@ sub output {
 #  be used to brute-force locate the shortest path and
 #  how many unique solutions there are for a given position
 
+# NTS this part is still unfinished.
+
 =head2 make_mask
 
 This dynamically creates the button mask
@@ -249,7 +252,7 @@ sub make_mask {
 
 }
 
-=head2 search_tre 
+=head2 search_tree 
 
 This creates and searches the tree, depth first for a solution.
 It remembers the layouts that it has already seen, to prevent loops.
@@ -277,11 +280,14 @@ The solving engine is a direct port from
  
 =cut
 
+# --- global variables ---
 
 my ($rows,$cols,$matrix,$dime,@initial_matrix);
-#($dime,$matrix) = split(/:/, $input);
-#($rows,$cols) = split(/x/, $dime);
+my @solution;	#This holds the solution matrix, or the "which buttons you press how many times"
+my $solved_cells=0;
+my $m_size; #= $rows * $cols;
 
+# --- global functions ---
 
 sub true{ return 1;}
 sub false{ return 0;}
@@ -311,11 +317,6 @@ sub dm{
 }
 
 
-# --- global variables ---
-
-my @solution;	#This holds the solution matrix, or the "which buttons you press how many times"
-my $solved_cells=0;
-my $m_size; #= $rows * $cols;
 
 =head3 unique_int_count
 
@@ -360,28 +361,13 @@ sub init {
 
 	my($rw,$cl) = (0,0);
 
-=pod
-
-	my $loop=0;
-	for(@initial_matrix){
-		$cells[$rw][$cl] = $initial_matrix[$loop];
-		$cl++;
-		$loop++;
-		if($cl % $cols == 0){ $rw++; $cl=0;}
-	}
-
-=cut	
-
-#=pod
-	# We don't have to preserve $initial_matrix so it might 
-	# be better or faster to shift
+	# We don't have to preserve $initial_matrix so
 	
 	while(@initial_matrix){
 		$cells[$rw][$cl] = shift(@initial_matrix);
 		$cl++;
 		if($cl % $cols == 0){ $rw++; $cl=0;}
 	}
-#=cut	
 } #/ sub init
 
 
@@ -575,7 +561,6 @@ sub doBasicSweep{
 
 
 
-
 ###################
 # The main() code #
 ###################
@@ -619,7 +604,7 @@ C<Alexx Roche> <alexx at cpan dot org>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011 Alexx Roche, all rights reserved.
+Copyright 2011,2015 Alexx Roche, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: Eclipse Public License, Version 1.0 ; 
@@ -635,41 +620,3 @@ print "Done that\n" if $opt{verbose}>=1;
 exit(0);
 __END__
 
-<h3>How does it work?</h3>
-<p>
-In case of 6x5 grid and two colors, a bit vector x of length 30
-can contain an answer.
-Each element of the vector corresponds to a field cell
-and its bit value expresses whether the cell should be pressed
-or not.
-A board state can also be stated as a bit vector b of length n = 30
-where each element expresses whether the cell is lit or not.
-</p><p>
-Pressing a cell inverts the state of some cells,
-which is expressed as a 30-vector [a1j ... anj] where each bit aij
-contains whether the cell i is inverted or not by pressing the cell j.
-The whole effect of pressing the cells as specified by the answer vector x
-is determined by, for each cell i, whether the times of inversions at i
-is odd or even.  This can be expressed as (ai1*x1 + ... + ain*xn) mod 2.
-</p><p>
-The puzzle is now stated as a problem to find an x such that
-</p><pre>  (ai1*x1 + ... + ain*xn + bi) mod 2 = c
-</pre>
-for all i with some final lightness c, or equivalently:
-<pre>  (ai1*x1 + ... + ain*xn) mod 2 = (c - bi) mod 2
-</pre>
-This can be solved with Gaussian elimination
-since mod 2 effectively distributes over anything.
-<p>
----Using finite field linear algebra, this method is stated as follows:
-</p><pre>  A x = c - b
-    x = A^<sup>{-1}</sup>(c - b)
-</pre>
-Although A^<sup>{-1}</sup> can be computed in advance
-for better performance,
-the script in this page computes A x = c - b every time.
-
-
-</body></html>
-
-C1G
