@@ -30,7 +30,7 @@ http://nmorduch.me/lights-out/
 
 ### another 10 green bottles
 
-http://www.99-bottles-of-beer.net/ is a site that Alexx Roche thinks is wonderful.
+http://www.99-bottles-of-beer.net/ and https://rosettacode.org/ are sites that Alexx thinks are wonderful.
 This repository is meant to be a little like that, but for LightsOut. Rather than
 golfing the code, we are building a better golf-cart: A buggy without bugs?
 
